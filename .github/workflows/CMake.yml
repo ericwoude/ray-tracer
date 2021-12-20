@@ -20,7 +20,3 @@ jobs:
         cmake --build build
       env:
         MAKEFLAGS: "-j2"
-
-    # Running the tests
-    - name: Run tests
-      run: bin/template_test	

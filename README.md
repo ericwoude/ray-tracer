@@ -1,8 +1,8 @@
 
 
-# C++ template
+# Simple Ray Tracer
 
-A basic C++ project template with CMake and GoogleTest.
+An implementation of a basic ray tracer following Ray Tracing In One Weekend by Peter Shirley [link](https://raytracing.github.io/books/RayTracingInOneWeekend.html).
 
 ## Usage
 
@@ -16,8 +16,3 @@ $ cmake -B build
 $ cmake --build build
 ```
 The compiled executables will be placed in build/bin.
-
-3. Test the project
-```bash
-$ cd build && ctest 
-```
