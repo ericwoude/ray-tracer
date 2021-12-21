@@ -5,6 +5,7 @@
 #include "hittable_list.h"
 #include "ray.h"
 #include "sphere.h"
+#include "triangle.h"
 #include "utility.h"
 #include "vec3.h"
 
@@ -25,11 +26,12 @@ int main()
     const double aspect_ratio = 16.0 / 9.0;
     const int width = 400;
     const int height = static_cast<int>(width / aspect_ratio);
-    const int sample_amount = 100;
+    const int sample_amount = 1;
 
     // World
     hittable_list world;
-    world.add(std::make_shared<sphere>(point3(0, 0, -1), 0.5));
+    world.add(std::make_shared<triangle>(
+        point3(-0.5, 0, -1), point3(0.5, 0, -1), point3(0, 0.5, -1)));
     world.add(std::make_shared<sphere>(point3(0, -100.5, -1), 100));
 
     // Camera
