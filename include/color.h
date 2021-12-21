@@ -3,12 +3,18 @@
 
 #include <iostream>
 
+#include "utility.h"
 #include "vec3.h"
 
-void write_color(std::ostream &out, color pixel)
+void write_color(std::ostream &out, color pixel_color, int sample_amount)
 {
-    out << static_cast<int>(255.999 * pixel.x()) << " "
-        << static_cast<int>(255.999 * pixel.y()) << " "
-        << static_cast<int>(255.999 * pixel.z()) << "\n";
+    double r = pixel_color.x() / sample_amount;
+    double g = pixel_color.y() / sample_amount;
+    double b = pixel_color.z() / sample_amount;
+
+    out << static_cast<int>(256 * clamp(r, 0.0, 0.999)) << " "
+        << static_cast<int>(256 * clamp(g, 0.0, 0.999)) << " "
+        << static_cast<int>(256 * clamp(b, 0.0, 0.999)) << "\n";
 }
+
 #endif  // COLOR_H
