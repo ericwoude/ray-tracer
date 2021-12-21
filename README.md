@@ -2,7 +2,7 @@
 
 # Simple Ray Tracer
 
-An implementation of a basic ray tracer following Ray Tracing In One Weekend by Peter Shirley [link](https://raytracing.github.io/books/RayTracingInOneWeekend.html).
+An implementation of a basic ray tracer following Ray Tracing In One Weekend by Peter Shirley [_Ray Tracing in One Weekend_](https://raytracing.github.io/books/RayTracingInOneWeekend.html).
 
 ## Usage
 

@@ -5,8 +5,6 @@
 
 #include "vec3.h"
 
-using color = vec3;
-
 void write_color(std::ostream &out, color pixel)
 {
     out << static_cast<int>(255.999 * pixel.x()) << " "
