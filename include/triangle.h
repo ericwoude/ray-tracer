@@ -2,6 +2,7 @@
 #define TRIANGLE_H
 
 #include "hittable.h"
+#include "utility.h"
 #include "vec3.h"
 
 class triangle : public hittable
@@ -22,29 +23,37 @@ class triangle : public hittable
 bool triangle::hit(const ray& r, double t_min, double t_max,
                    hit_record& rec) const
 {
+    double determinant, f, u, v;
+    vec3 h, s, q;
+
     vec3 A = (r.origin() - v0) - (r.origin() - v2);
     vec3 B = (r.origin() - v0) - (r.origin() - v1);
 
-    // Ray and triangle are parallel the determinant nears zero
-    vec3 p = (cross(r.direction(), B));
-    double determinant = dot(A, p);
-    if (fabs(determinant) < 0.0001)
+    // Ray and triangle are parallel if the determinant nears zero
+    h = cross(r.direction(), B);
+    determinant = dot(A, h);
+    if (fabs(determinant) < epsilon)
         return false;
 
-    vec3 t = r.origin() - v0;
-    double u = dot(t, p) / determinant;
-    if (u < 0 || u > 1)
+    f = 1.0 / determinant;
+    s = r.origin() - v0;
+    u = f * dot(s, h);
+    if (u < 0.0 || u > 1.0)
         return false;
 
-    vec3 q = cross(t, A);
-    double v = dot(r.direction(), q) / determinant;
-    if (v < 0 || u + v > 1)
+    q = cross(s, A);
+    v = f * dot(r.direction(), q);
+    if (v < 0.0 || u + v > 1.0)
         return false;
 
-    rec.t = dot(B, q) / determinant;
-    rec.p = p;
-    vec3 n = unit_vector(cross(A, B));
-    rec.set_face_normal(r, n);
+    // line intersection but not ray intersection
+    double t = f * dot(B, q);
+    if (t <= epsilon)
+        return false;
+
+    rec.t = t;
+    rec.p = r.at(rec.t);
+    rec.set_face_normal(r, rec.p);
 
     return true;
 }

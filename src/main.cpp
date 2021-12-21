@@ -26,7 +26,7 @@ int main()
     const double aspect_ratio = 16.0 / 9.0;
     const int width = 400;
     const int height = static_cast<int>(width / aspect_ratio);
-    const int sample_amount = 1;
+    const int sample_amount = 20;
 
     // World
     hittable_list world;
