@@ -12,6 +12,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
 add_compile_options(-g)
 
+
+
 include_directories(include)
 
 add_executable(
@@ -19,3 +21,9 @@ add_executable(
     src/main.cpp
 )
 target_link_libraries(raytracer)
+
+find_package (Threads REQUIRED)
+
+target_link_libraries(raytracer
+    ${CMAKE_THREAD_LIBS_INIT}
+)

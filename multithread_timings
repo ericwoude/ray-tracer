@@ -1,0 +1,38 @@
+--------------------------------
+single loop unthreaded
+time ./bin/raytracer > image.ppm
+
+real    0m9,443s
+user    0m9,413s
+sys     0m0,012s
+--------------------------------
+
+
+--------------------------------
+single loop 4 threads
+time ./bin/raytracer > image.ppm
+
+real    0m5,621s
+user    0m16,399s
+sys     0m0,025s
+--------------------------------
+
+
+--------------------------------
+single loop 8 threads
+time ./bin/raytracer > image.ppm
+
+real    0m5,419s
+user    0m18,637s
+sys     0m0,028s
+--------------------------------
+
+
+--------------------------------
+nested loop unthreaded
+time ./bin/raytracer > image.ppm
+
+real    0m9,456s
+user    0m9,417s
+sys     0m0,012s
+--------------------------------

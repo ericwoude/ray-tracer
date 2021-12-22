@@ -1,5 +1,7 @@
 #include <cmath>
 #include <cstdlib>
+#include <functional>
+#include <thread>
 
 #include "camera.h"
 #include "color.h"
@@ -39,10 +41,10 @@ int main()
 
     // World
     hittable_list world;
-    world.add(std::make_shared<triangle>(
-        point3(-0.5, 0, -1), point3(0.5, 0, -1), point3(0, 0.5, -1)));
+    // world.add(std::make_shared<triangle>(
+    // point3(-0.5, 0, -1), point3(0.5, 0, -1), point3(0, 0.5, -1)));
     world.add(std::make_shared<sphere>(point3(0, -100.5, -1), 100));
-    // world.add(std::make_shared<sphere>(point3(0, 0, -1), 0.5));
+    world.add(std::make_shared<sphere>(point3(0, 0, -1), 0.5));
 
     // Camera
     camera cam;
@@ -51,52 +53,57 @@ int main()
     std::array<color, height * width> screen;
     std::cout << "P3\n" << width << " " << height << "\n255\n";
 
-    // Double loop variant
-    /*
-    for (int j = height - 1; j >= 0; --j)
-    {
-        for (int i = 0; i < width; ++i)
-        {
-            color pixel_color(0, 0, 0);
+    auto partial_render =
+        [cam, world](int s, int e, std::array<color, height * width>& screen) {
+            int row = 0;
+            int col = 0;
+            div_t dv;
 
-            for (int x = 0; x < sample_amount; x++)
+            for (int x = s; x < e; x++)
             {
-                double u = (i + random_double()) / (width - 1);
-                double v = (j + random_double()) / (height - 1);
-                ray r = cam.get_ray(u, v);
+                dv = std::div(x, width);
+                col = dv.rem;
+                row = (height - 1) - dv.quot;
 
-                pixel_color += ray_color(r, world, depth);
+                color pixel_color(0, 0, 0);
+
+                for (int k = 0; k < sample_amount; k++)
+                {
+                    double u = (col + random_double()) / (width - 1);
+                    double v = (row + random_double()) / (height - 1);
+                    ray r = cam.get_ray(u, v);
+
+                    pixel_color += ray_color(r, world, depth);
+                }
+
+                screen[x] = pixel_color;
             }
-            screen[j * height + i] = pixel_color;
-            // write_color(std::cout, pixel_color, sample_amount);
-        }
-    }
-    */
+        };
 
-    int row = 0;
-    int col = 0;
-    div_t dv;
-    for (int x = 0; x < height * width; x++)
+    /*
+     *  Divide work between the workers; each worker gets to compute
+     *  (width * height) / thead_amount --- amount of pixels.
+     */
+    std::vector<std::thread> threads;
+    const int thread_amount = 8;
+    const double quotient = width * height / thread_amount;
+    int start = 0;
+    int end = 0;
+
+    for (int i = 0; i < thread_amount; i++)
     {
-        dv = std::div(x, width);
-        col = dv.rem;
-        row = (height - 1) - dv.quot;
-
-        color pixel_color(0, 0, 0);
-
-        for (int k = 0; k < sample_amount; k++)
-        {
-            double u = (col + random_double()) / (width - 1);
-            double v = (row + random_double()) / (height - 1);
-            ray r = cam.get_ray(u, v);
-
-            pixel_color += ray_color(r, world, depth);
-        }
-
-        screen[x] = pixel_color;
+        start = i * quotient;
+        end = (i + 1) * quotient;
+        threads.push_back(
+            std::thread(partial_render, start, end, std::ref(screen)));
     }
 
-    // Write output
+    for (auto& t : threads)
+    {
+        if (t.joinable())
+            t.join();
+    }
+
     for (const auto& c : screen)
     {
         write_color(std::cout, c, sample_amount);
