@@ -1,4 +1,5 @@
 #include <cmath>
+#include <cstdlib>
 
 #include "camera.h"
 #include "color.h"
@@ -38,17 +39,20 @@ int main()
 
     // World
     hittable_list world;
-    // world.add(std::make_shared<triangle>(
-    // point3(-0.5, 0, -1), point3(0.5, 0, -1), point3(0, 0.5, -1)));
+    world.add(std::make_shared<triangle>(
+        point3(-0.5, 0, -1), point3(0.5, 0, -1), point3(0, 0.5, -1)));
     world.add(std::make_shared<sphere>(point3(0, -100.5, -1), 100));
-    world.add(std::make_shared<sphere>(point3(0, 0, -1), 0.5));
+    // world.add(std::make_shared<sphere>(point3(0, 0, -1), 0.5));
 
     // Camera
     camera cam;
 
     // Render
+    std::array<color, height * width> screen;
     std::cout << "P3\n" << width << " " << height << "\n255\n";
 
+    // Double loop variant
+    /*
     for (int j = height - 1; j >= 0; --j)
     {
         for (int i = 0; i < width; ++i)
@@ -63,9 +67,39 @@ int main()
 
                 pixel_color += ray_color(r, world, depth);
             }
-
-            write_color(std::cout, pixel_color, sample_amount);
+            screen[j * height + i] = pixel_color;
+            // write_color(std::cout, pixel_color, sample_amount);
         }
+    }
+    */
+
+    int row = 0;
+    int col = 0;
+    div_t dv;
+    for (int x = 0; x < height * width; x++)
+    {
+        dv = std::div(x, width);
+        col = dv.rem;
+        row = (height - 1) - dv.quot;
+
+        color pixel_color(0, 0, 0);
+
+        for (int k = 0; k < sample_amount; k++)
+        {
+            double u = (col + random_double()) / (width - 1);
+            double v = (row + random_double()) / (height - 1);
+            ray r = cam.get_ray(u, v);
+
+            pixel_color += ray_color(r, world, depth);
+        }
+
+        screen[x] = pixel_color;
+    }
+
+    // Write output
+    for (const auto& c : screen)
+    {
+        write_color(std::cout, c, sample_amount);
     }
 
     return 0;
