@@ -23,6 +23,13 @@ inline double random_double()
     return dist(gen);
 }
 
+inline double random_double(double min, double max)
+{
+    static std::uniform_real_distribution<double> dist(min, max);
+    static std::mt19937 gen;
+    return dist(gen);
+}
+
 inline double clamp(double x, double min, double max)
 {
     if (x < min)

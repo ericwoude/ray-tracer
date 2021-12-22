@@ -5,6 +5,8 @@
 #include <cmath>
 #include <iostream>
 
+#include "utility.h"
+
 class vec3
 {
    public:
@@ -44,7 +46,17 @@ class vec3
         return e[0] * e[0] + e[1] * e[1] + e[2] * e[2];
     }
 
-   public:
+    inline static vec3 random()
+    {
+        return vec3(random_double(), random_double(), random_double());
+    }
+
+    inline static vec3 random(double min, double max)
+    {
+        return vec3(random_double(min, max), random_double(min, max),
+                    random_double(min, max));
+    }
+
     double e[3];
 };
 
@@ -90,6 +102,18 @@ inline vec3 cross(const vec3 &u, const vec3 &v)
 }
 
 inline vec3 unit_vector(vec3 v) { return v / v.length(); }
+
+vec3 random_in_unit_sphere()
+{
+    while (true)
+    {
+        vec3 r = vec3::random();
+        if (r.length_squared() >= 1)
+            continue;
+
+        return r;
+    }
+}
 
 using color = vec3;
 using point3 = vec3;
