@@ -45,18 +45,20 @@ int main()
     const int sample_amount = 100;
     const int depth = 20;
 
-    // World
     auto m_ground = std::make_shared<lambertian>(color(0.8, 0.8, 0.0));
-    auto m_lamb = std::make_shared<lambertian>(color(0.7, 0.3, 0.3));
+    auto m_lamb = std::make_shared<lambertian>(color(0.1, 0.2, 0.5));
     auto m_glass = std::make_shared<dielectric>(1.4);
+    auto m_metal = std::make_shared<metal>(color(0.8, 0.6, 0.2), 0.0);
 
     hittable_list world;
-    world.add(std::make_shared<sphere>(point3(0, -100.5, -1), 100, m_ground));
-    world.add(std::make_shared<sphere>(point3(-0.6, 0, -1), 0.5, m_lamb));
-    world.add(std::make_shared<sphere>(point3(0.6, 0, -1), -0.5, m_glass));
+    world.add(
+        std::make_shared<sphere>(point3(0.0, -100.5, -1.0), 100.0, m_ground));
+    world.add(std::make_shared<sphere>(point3(0.0, 0.0, -1.0), 0.5, m_lamb));
+    world.add(std::make_shared<sphere>(point3(-1.0, 0.0, -1.0), 0.5, m_glass));
+    world.add(std::make_shared<sphere>(point3(1.0, 0.0, -1.0), 0.5, m_metal));
 
     // Camera
-    camera cam;
+    camera cam(90, aspect_ratio);
 
     // Render
     std::array<color, height * width> screen;
@@ -64,15 +66,15 @@ int main()
 
     auto partial_render =
         [cam, world](int s, int e, std::array<color, height * width>& screen) {
+            div_t dv;
             int row = 0;
             int col = 0;
-            div_t dv;
 
             for (int x = s; x < e; x++)
             {
                 dv = std::div(x, width);
-                col = dv.rem;
                 row = (height - 1) - dv.quot;
+                col = dv.rem;
 
                 color pixel_color(0, 0, 0);
 
@@ -103,6 +105,7 @@ int main()
     {
         start = i * quotient;
         end = (i + 1) * quotient;
+
         threads.push_back(
             std::thread(partial_render, start, end, std::ref(screen)));
     }
