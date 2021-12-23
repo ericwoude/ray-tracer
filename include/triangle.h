@@ -2,6 +2,7 @@
 #define TRIANGLE_H
 
 #include "hittable.h"
+#include "material.h"
 #include "utility.h"
 #include "vec3.h"
 
@@ -9,7 +10,8 @@ class triangle : public hittable
 {
    public:
     triangle() {}
-    triangle(point3 t0, point3 t1, point3 t2) : v0(t0), v1(t1), v2(t2){};
+    triangle(point3 t0, point3 t1, point3 t2, std::shared_ptr<material> m)
+        : v0(t0), v1(t1), v2(t2), mat_ptr(m){};
 
     virtual bool hit(const ray& r, double t_min, double t_max,
                      hit_record& rec) const override;
@@ -17,6 +19,7 @@ class triangle : public hittable
     point3 v0;
     point3 v1;
     point3 v2;
+    std::shared_ptr<material> mat_ptr;
 };
 
 // Möller–Trumbore intersection algorithm
@@ -54,6 +57,7 @@ bool triangle::hit(const ray& r, double t_min, double t_max,
     rec.t = t;
     rec.p = r.at(rec.t);
     rec.set_face_normal(r, rec.p);
+    rec.mat_ptr = mat_ptr;
 
     return true;
 }

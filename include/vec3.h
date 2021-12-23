@@ -57,6 +57,12 @@ class vec3
                     random_double(min, max));
     }
 
+    bool near_zero() const
+    {
+        return ((fabs(e[0]) < epsilon) && (fabs(e[1]) < epsilon) &&
+                (fabs(e[1]) < epsilon));
+    }
+
     double e[3];
 };
 
@@ -114,6 +120,10 @@ vec3 random_in_unit_sphere()
         return r;
     }
 }
+
+vec3 random_unit_vector() { return unit_vector(vec3::random()); }
+
+vec3 reflect(const vec3 &v, const vec3 &n) { return v - 2 * dot(v, n) * n; }
 
 using color = vec3;
 using point3 = vec3;
