@@ -27,5 +27,5 @@ $ ./bin/raytracer > image.ppm
 ```
 
 ## Literature
--Shirley, P. (2016). Ray tracing in one weekend. Amazon Digital Services LLC, 1.
+- Shirley, P. (2016). Ray tracing in one weekend. Amazon Digital Services LLC, 1.
 - Möller, T., & Trumbore, B. (1997). Fast, minimum storage ray-triangle intersection. Journal of graphics tools, 2(1), 21-28.

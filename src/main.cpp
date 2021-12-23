@@ -43,15 +43,17 @@ int main()
     const int width = 400;
     const int height = static_cast<int>(width / aspect_ratio);
     const int sample_amount = 100;
-    const int depth = 30;
+    const int depth = 20;
 
     // World
     auto m_ground = std::make_shared<lambertian>(color(0.8, 0.8, 0.0));
-    auto m_ball = std::make_shared<metal>(color(0.8, 0.8, 0.8));
+    auto m_lamb = std::make_shared<lambertian>(color(0.7, 0.3, 0.3));
+    auto m_glass = std::make_shared<dielectric>(1.4);
 
     hittable_list world;
     world.add(std::make_shared<sphere>(point3(0, -100.5, -1), 100, m_ground));
-    world.add(std::make_shared<sphere>(point3(0, 0, -1), .5, m_ball));
+    world.add(std::make_shared<sphere>(point3(-0.6, 0, -1), 0.5, m_lamb));
+    world.add(std::make_shared<sphere>(point3(0.6, 0, -1), -0.5, m_glass));
 
     // Camera
     camera cam;
