@@ -135,6 +135,18 @@ vec3 refract(const vec3 &uv, const vec3 &n, double etai_over_eta)
     return r_perp + r_pl;
 }
 
+vec3 random_in_unit_disk()
+{
+    while (true)
+    {
+        vec3 p = vec3(random_double(-1, 1), random_double(-1, 1), 0);
+        if (p.length_squared() >= 1)
+            continue;
+
+        return p;
+    }
+}
+
 using color = vec3;
 using point3 = vec3;
 

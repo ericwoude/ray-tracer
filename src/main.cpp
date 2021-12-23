@@ -42,7 +42,7 @@ int main()
     const double aspect_ratio = 16.0 / 9.0;
     const int width = 400;
     const int height = static_cast<int>(width / aspect_ratio);
-    const int sample_amount = 250;
+    const int sample_amount = 100;
     const int depth = 50;
 
     auto m_ground = std::make_shared<lambertian>(color(0.94, 0.87, 0.8));
@@ -58,8 +58,13 @@ int main()
     world.add(std::make_shared<sphere>(point3(1.0, 0.0, -1.0), 0.5, m_metal));
 
     // Camera
-    camera cam(point3(-2, 2, 1), point3(0, 0, -1), vec3(0, 1, 0), 30,
-               aspect_ratio);
+    point3 lookfrom = point3(-2, 2, 1);
+    point3 lookat = point3(0, 0, -1);
+    vec3 vup = vec3(0, 1, 0);
+    double aperture = .5;
+    double dist_to_focus = (lookfrom - lookat).length();
+    camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture,
+               dist_to_focus);
 
     // Render
     std::array<color, height * width> screen;
