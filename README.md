@@ -1,8 +1,9 @@
 
 
 # Simple Ray Tracer
+![Demo 1 picture](img/demo_1.png)
 
-An implementation of a basic ray tracer following Ray Tracing In One Weekend by Peter Shirley [_Ray Tracing in One Weekend_](https://raytracing.github.io/books/RayTracingInOneWeekend.html).
+An implementation of a basic ray tracer following Ray Tracing In One Weekend [_Ray Tracing in One Weekend_](https://raytracing.github.io/books/RayTracingInOneWeekend.html).
 
 Outside the scope of the book, I added:
 - multithreading

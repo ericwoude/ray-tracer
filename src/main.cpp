@@ -13,6 +13,8 @@
 #include "utility.h"
 #include "vec3.h"
 
+using std::make_shared;
+
 color ray_color(const ray& r, const hittable& world, int depth)
 {
     hit_record rec;
@@ -36,77 +38,125 @@ color ray_color(const ray& r, const hittable& world, int depth)
     return (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0);
 }
 
+hittable_list generate_world()
+{
+    hittable_list world;
+
+    auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
+    world.add(make_shared<sphere>(point3(0, -1000, 0), 1000, ground_material));
+
+    for (int a = -11; a < 11; a++)
+    {
+        for (int b = -11; b < 11; b++)
+        {
+            auto choose_mat = random_double();
+            point3 center(a + 0.9 * random_double(), 0.2,
+                          b + 0.9 * random_double());
+
+            if ((center - point3(4, 0.2, 0)).length() > 0.9)
+            {
+                std::shared_ptr<material> sphere_material;
+
+                if (choose_mat < 0.8)
+                {
+                    // diffuse
+                    auto albedo = color::random() * color::random();
+                    sphere_material = make_shared<lambertian>(albedo);
+                    world.add(
+                        make_shared<sphere>(center, 0.2, sphere_material));
+                }
+                else if (choose_mat < 0.95)
+                {
+                    // metal
+                    auto albedo = color::random(0.5, 1);
+                    auto fuzz = random_double(0, 0.5);
+                    sphere_material = make_shared<metal>(albedo, fuzz);
+                    world.add(
+                        make_shared<sphere>(center, 0.2, sphere_material));
+                }
+                else
+                {
+                    // glass
+                    sphere_material = make_shared<dielectric>(1.5);
+                    world.add(
+                        make_shared<sphere>(center, 0.2, sphere_material));
+                }
+            }
+        }
+    }
+
+    auto material1 = make_shared<dielectric>(1.5);
+    world.add(make_shared<sphere>(point3(0, 1, 0), 1.0, material1));
+
+    auto material2 = make_shared<lambertian>(color(0.4, 0.2, 0.1));
+    world.add(make_shared<sphere>(point3(-4, 1, 0), 1.0, material2));
+
+    auto material3 = make_shared<metal>(color(0.7, 0.6, 0.5), 0.0);
+    world.add(make_shared<sphere>(point3(4, 1, 0), 1.0, material3));
+
+    return world;
+}
+
 int main()
 {
     // Screen
-    const double aspect_ratio = 16.0 / 9.0;
+    const auto aspect_ratio = 16.0 / 9.0;
     const int width = 400;
     const int height = static_cast<int>(width / aspect_ratio);
-    const int sample_amount = 100;
-    const int depth = 50;
-
-    auto m_ground = std::make_shared<lambertian>(color(0.94, 0.87, 0.8));
-    auto m_lamb = std::make_shared<lambertian>(color(0.1, 0.2, 0.5));
-    auto m_glass = std::make_shared<dielectric>(1.4);
-    auto m_metal = std::make_shared<metal>(color(0.8, 0.6, 0.2), 0.0);
-
-    hittable_list world;
-    world.add(
-        std::make_shared<sphere>(point3(0.0, -100.5, -1.0), 100.0, m_ground));
-    world.add(std::make_shared<sphere>(point3(0.0, 0.0, -1.0), 0.5, m_lamb));
-    world.add(std::make_shared<sphere>(point3(-1.0, 0.0, -1.0), 0.5, m_glass));
-    world.add(std::make_shared<sphere>(point3(1.0, 0.0, -1.0), 0.5, m_metal));
+    const int sample_amount = 500;
+    const int depth = 30;
 
     // Camera
-    point3 lookfrom = point3(-2, 2, 1);
-    point3 lookat = point3(0, 0, -1);
-    vec3 vup = vec3(0, 1, 0);
-    double aperture = .5;
-    double dist_to_focus = (lookfrom - lookat).length();
+    point3 lookfrom(13, 2, 3);
+    point3 lookat(0, 0, 0);
+    vec3 vup(0, 1, 0);
+    auto dist_to_focus = 10.0;
+    auto aperture = 0.1;
+
     camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture,
                dist_to_focus);
 
     // Render
-    std::array<color, height * width> screen;
     std::cout << "P3\n" << width << " " << height << "\n255\n";
+    auto world = generate_world();
 
-    auto partial_render =
-        [cam, world](int s, int e, std::array<color, height * width>& screen) {
-            div_t dv;
-            int row = 0;
-            int col = 0;
+    auto partial_render = [cam, world](int s, int e,
+                                       std::vector<color>& screen) {
+        div_t dv;
+        int row = 0;
+        int col = 0;
 
-            for (int x = s; x < e; x++)
+        for (int x = s; x < e; x++)
+        {
+            dv = std::div(x, width);
+            row = (height - 1) - dv.quot;
+            col = dv.rem;
+
+            color pixel_color(0, 0, 0);
+
+            for (int k = 0; k < sample_amount; k++)
             {
-                dv = std::div(x, width);
-                row = (height - 1) - dv.quot;
-                col = dv.rem;
+                double u = (col + random_double()) / (width - 1);
+                double v = (row + random_double()) / (height - 1);
+                ray r = cam.get_ray(u, v);
 
-                color pixel_color(0, 0, 0);
-
-                for (int k = 0; k < sample_amount; k++)
-                {
-                    double u = (col + random_double()) / (width - 1);
-                    double v = (row + random_double()) / (height - 1);
-                    ray r = cam.get_ray(u, v);
-
-                    pixel_color += ray_color(r, world, depth);
-                }
-
-                screen[x] = pixel_color;
+                pixel_color += ray_color(r, world, depth);
             }
-        };
+
+            screen[x] = pixel_color;
+        }
+    };
 
     /*
      *  Divide work between the workers; each worker gets to compute
      *  (width * height) / thead_amount --- amount of pixels.
      */
+    std::vector<color> screen(height * width);
     std::vector<std::thread> threads;
-    const int thread_amount = 8;
-    const double quotient = width * height / thread_amount;
+    const int thread_amount = 100;
+    constexpr double quotient = width * height / thread_amount;
     int start = 0;
     int end = 0;
-
     for (int i = 0; i < thread_amount; i++)
     {
         start = i * quotient;
