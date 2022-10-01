@@ -1,4 +1,6 @@
-
+[![Main Status](https://img.shields.io/github/workflow/status/ericwoude/ray-tracer/main?style=social)](https://github.com/ericwoude/ray-tracer/actions/workflows/main.yml)
+[![Latest Release](https://img.shields.io/github/v/release/ericwoude/ray-tracer?style=social)](https://github.com/ericwoude/ray-tracer/releases)
+[![License](https://img.shields.io/github/license/ericwoude/ray-tracer?style=social)](https://github.com/ericwoude/ray-tracer/blob/main/LICENSE)
 
 # Simple Ray Tracer
 ![Demo 1 picture](img/demo_1.png)
@@ -10,19 +12,13 @@ Outside the scope of the book, I added:
 - triangle rendering
 
 ## Usage
-
-1. Configure the project and generate the native build system:
+1. Configure the project and generate the native build system, and call the build system to compile and link the project:
 ```bash
-$ cmake -B build
-```
-
-2. Call the build system to compile and link the project
-```bash
-$ cmake --build build
+$ make build
 ```
 The compiled executables will be placed in build/bin.
 
-3. Invoke the ray tracer and output the results to a file
+2. Invoke the ray tracer and output the results to a file
 ```bash
 $ ./bin/raytracer > image.ppm
 ```
